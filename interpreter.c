@@ -12,31 +12,35 @@ void usage(char *arg0, char *message) {
     return;
 }
 
-int32_t processChar(FILE *input, char *out);
+int32_t processChar(FILE *input);
 
 // Returns the number of characters used/skipped
 int32_t whileLoop(FILE *input) {
     int32_t processed;
     do {
         processed = 0;
-        char c = '\0';
+        int32_t chars;
         do {
-            processed += processChar(input, &c);
-        } while (c != ']');
+            chars = processChar(input);
+            processed += chars;
+        } while (chars != 0);
+        // since chars == 0 when we find ], we must add 1 to the total.
+        processed++;
         if (mem[i] != 0) {
             fseek(input, -processed, SEEK_CUR);
         }
     } while (mem[i] != 0);
 
-    return processed;
+    return processed + 1; // must include initial [
 }
 
 // Returns the number of characters used/skipped
-int32_t processChar(FILE *input, char *out) {
-    int c = *out = fgetc(input);
+int32_t processChar(FILE *input) {
+    int c = fgetc(input);
     if (c == EOF) {
         return 0;
     }
+    //printf("%c", c);
     int32_t chars = 1;
     switch (c) {
     case '>': i++; break;
@@ -44,9 +48,9 @@ int32_t processChar(FILE *input, char *out) {
     case '+': mem[i]++; break;
     case '-': mem[i]--; break;
     case ',': mem[i] = getchar(); break;
-    case '.': putchar(mem[i]); break;
+    case '.': printf("%c", mem[i]); break;
     case '[': chars = whileLoop(input); break;
-    case ']':
+    case ']': chars = 0;
     default: break; // other characters considered comments
     }
     return chars;
@@ -60,8 +64,7 @@ int main(int argc, char *argv[]) {
     if (input == NULL) {
         usage(argv[0], "Input file not found.");
     }
-    char c;
-    while (processChar(input, &c) != 0)
+    while (processChar(input) != 0)
         ;
     fclose(input);
     return 0;
