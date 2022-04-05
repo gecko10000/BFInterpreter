@@ -40,8 +40,7 @@ int32_t processChar(FILE *input) {
     if (c == EOF) {
         return 0;
     }
-    //printf("%c", c);
-    int32_t chars = 1;
+    int32_t chars = 1; // default
     switch (c) {
     case '>': i++; break;
     case '<': i--; break;
@@ -50,7 +49,7 @@ int32_t processChar(FILE *input) {
     case ',': mem[i] = getchar(); break;
     case '.': printf("%c", mem[i]); break;
     case '[': chars = whileLoop(input); break;
-    case ']': chars = 0;
+    case ']': chars = 0; // signal end of loop
     default: break; // other characters considered comments
     }
     return chars;
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
     if (input == NULL) {
         usage(argv[0], "Input file not found.");
     }
-    while (processChar(input) != 0)
+    while (processChar(input) != 0) // EOF returns 0
         ;
     fclose(input);
     return 0;
